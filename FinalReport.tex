@@ -1,0 +1,307 @@
+%%%%%%%% ICML 2025 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2025} with \usepackage[nohyperref]{icml2025} above.
+\usepackage{hyperref}
+
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+\usepackage{icml2025}
+
+% If accepted, instead use the following line for the camera-ready submission:
+% \usepackage[accepted]{icml2025}
+
+% For theorems and such
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+% if you use cleveref..
+\usepackage[capitalize,noabbrev]{cleveref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Todonotes is useful during development; simply uncomment the next line
+%    and comment out the line below the next line to turn off comments
+%\usepackage[disable,textsize=tiny]{todonotes}
+\usepackage[textsize=tiny]{todonotes}
+
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\icmltitlerunning{Submission and Formatting Instructions for ICML 2025}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{Implementing and Improving Show, Attend, and Tell }
+
+% It is OKAY to include author information, even for blind
+% submissions: the style file will automatically remove it for you
+% unless you've provided the [accepted] option to the icml2025
+% package.
+
+% List of affiliations: The first argument should be a (short)
+% identifier you will use later to specify author affiliations
+% Academic affiliations should list Department, University, City, Region, Country
+% Industry affiliations should list Company, City, Region, Country
+
+% You can specify symbols, otherwise they are numbered in order.
+% Ideally, you should not use this facility. Affiliations will be numbered
+% in order of appearance and this is the preferred way.
+\icmlsetsymbol{equal}{*}
+
+\begin{icmlauthorlist}
+\icmlauthor{Isabella Mercado}{sch}
+%\icmlauthor{}{sch}
+%\icmlauthor{}{sch}
+%\icmlauthor{}{sch}
+\end{icmlauthorlist}
+
+\icmlaffiliation{yyy}{Department of XXX, University of YYY, Location, Country}
+\icmlaffiliation{comp}{Company Name, Location, Country}
+\icmlaffiliation{sch}{University of Chicago, Chicago, USA}
+
+\icmlcorrespondingauthor{Isabella Mercado}{imercado@uchicago.edu}
+\icmlcorrespondingauthor{Firstname2 Lastname2}{first2.last2@www.uk}
+
+% You may provide any keywords that you
+% find helpful for describing your paper; these are used to populate
+% the "keywords" metadata in the PDF but will not be shown in the document
+\icmlkeywords{Machine Learning, ICML}
+
+\vskip 0.3in
+]
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column
+% listing the affiliations and the copyright notice.
+% The command takes one argument, which is text to display at the start of the footnote.
+% The \icmlEqualContribution command is standard text for equal contribution.
+% Remove it (just {}) if you do not need this facility.
+
+%\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
+
+\begin{abstract}
+This report presents an implementation and architectural improvements of the "Show, Attend and Tell" model for neural image caption generation with visual attention. We begin with a brief overview of the original architecture, which pioneered the use of attention mechanisms in image captioning. We then detail our implementation of this model, highlighting both similarities and differences with the original paper's approach. Furthermore, we describe several architectural enhancements made to the original implementation, including improvements to the encoder-decoder framework, attention mechanism refinements, and training methodology optimizations. Our modifications aim to enhance the model's performance in generating accurate image descriptions while maintaining computational efficiency.
+\end{abstract}
+
+\section{Introduction}
+
+The task of automatically generating natural language descriptions for images is a complex, but important challenge in computer vision and natural language processing. The seminal "Show, Attend and Tell" paper by Xu et al. (2015) introduced a novel approach to image captioning by integrating attention mechanisms with latent representations of images. The authors demonstrated both qualitatively, through visualizations of attention, and quantitatively, through BLEU Score measurements, the utility in guiding a model's focus to specific, relevant regions of an image when generating each word of a caption.
+
+The original architecture combined a convolutional neural network (CNN) for image feature extraction with a long-short term memory network (LSTM) for textual sequence generation. As opposed to utilizing the feature vectors outputted by the final fully-connected layer of a CNN similar to previous approaches, the authors extract features from a lower convolutional network to retain spatial information that can leveraged by the attention mechanism. In this paper, we replicate, train and evaluate the core architecture described in the original paper in order to establish a baseline reference point. From there, we extend beyond the methodology implemented in the original paper, improving the encoder, decoder, and training architectures to drive higher performance than the original paper.   
+
+\section{Original Implementation Analysis}
+
+Our base implementation follows the core architecture described in the original paper, which we trained and validated on the 2014 Microsoft COCO (Common Objects in Context) dataset with 82,783 images in our training set and 40,504 images in our validation set. 
+
+\subsection{Encoder Architecture}
+
+The original paper employed a modified VGG-16 network as the encoder, removing the final fully connected layer to maintain spatial information in the feature maps. Our base implementation replicates their work with a similarly modified VGG-19 network. 
+
+The feature extraction process can be represented mathematically as:
+\begin{equation}
+\textbf{a} = \{a_1, \ldots, a_L\}, a_i \in \mathbb{R}^D
+\end{equation}
+where $\textbf{a}$ represents the set of $L$ annotation vectors, each encoding a portion of the image. For VGG-19, $L = 196$ (corresponding to a $14 \times 14$ spatial grid) and $D = 512$. For ResNet-101, $L = 49$ (corresponding to a $7 \times 7$ spatial grid) and $D = 2048$.
+
+\subsection{Attention Mechanism}
+
+The attention mechanism in our implementation closely follows the soft attention approach described in the paper. For each hidden state $h_t$ of the decoder, attention weights $\alpha_{ti}$ are computed for each spatial location $i$ in the image feature map. These attention weights then serve to calculate the context vector $\hat{z}_t$, which is a weighted sum of annotation vectors:
+
+\begin{align}
+e_{ti} &= f_{att}(a_i, h_{t-1}) \\
+\alpha_{ti} &= \frac{\exp(e_{ti})}{\sum_{j=1}^{L} \exp(e_{tj})} \\
+\hat{z}_t = \phi(\{a_i\}, \{\alpha_i\}) = \sum_{i=1}^{L} \alpha_{ti} a_i
+\end{align}
+
+Our model identifies the 
+
+\begin{equation}
+\f_{att} = &= \tanh(W_{ht} h_{t-1} + b_{ht} + W_{a} a_i + b_{ai})
+\end{equation}
+
+Additionally, our implementation includes a gating scalar $\beta_t$ that modulates the context vector before it is fed into the LSTM, allowing the model to adaptively weight the importance of the visual context at each time step.
+
+\begin{equation}
+\beta_t = \sigma(W_{\beta} h_{t-1} + b_{\beta})
+\end{equation}
+
+\subsection{Decoder Architecture}
+
+The decoder utilizes an LSTM network to generate captions sequentially. At each time step $t$, the model computes:
+
+\begin{align}
+i_t &= \sigma(W_{ix} x_t + W_{ih} h_{t-1} + W_{ic} c_{t-1} + b_i) \\
+f_t &= \sigma(W_{fx} x_t + W_{fh} h_{t-1} + W_{fc} c_{t-1} + b_f) \\
+o_t &= \sigma(W_{ox} x_t + W_{oh} h_{t-1} + W_{oc} c_{t-1} + b_o) \\
+g_t &= \tanh(W_{gx} x_t + W_{gh} h_{t-1} + b_g) \\
+c_t &= f_t \odot c_{t-1} + i_t \odot g_t \\
+h_t &= o_t \odot \tanh(c_t)
+\end{align}
+
+where $x_t$ is the concatenation of the word embedding and the gated context vector $\beta_t \cdot \hat{z}_t$. The probability distribution over the vocabulary is then calculated as:
+
+\begin{equation}
+p(y_t | y_1, \ldots, y_{t-1}, I) = \text{softmax}(W_o h_t + b_o)
+\end{equation}
+
+Our implementation supports both inference-mode caption generation and teacher forcing for training. With teacher forcing, the ground truth word from the previous time step is used as input for the current time step, which stabilizes the learning process.
+
+\section{Architectural Improvements}
+
+Our enhanced implementation includes several architectural improvements to address limitations in the original implementation and incorporate recent advances in deep learning.
+    
+\subsection{Modern CNN}: Our advanced implementation leverages the final convolutional layer of the ResNet-101 network (obtained by removing the final layer and penultimate average pooling layer). Although both were trained on the substantial ImageNet dataset, the VGG model utilizes a simple sequential structure with 16 convolutional layers and 3 fully connnected layers, while the ResNet has 101 layers with residual blocks that allow information to bypass layers. As a result the ResNet is computationally more efficient and accurate, driving superior gradient flow and feature extraction. Mathematically, for an input image $I \in \mathbb{R}^{H \times W \times 3}$, our ResNet101 encoder produces feature vectors $F \in \mathbb{R}^{h \times w \times d}$ where $h=7, w=7, d=2048$. These features are then reshaped to $F' \in \mathbb{R}^{49 \times 2048}$ before being passed to the LSTM.
+
+\subsection{Length-aware batch processing}: The decoder sorts the ground-truth captions by decreasing length and continues generating captions only for samples whose current timestep is less than the length of their ground-truth caption. This technique ensures that each sample in a batch is processed only for the necessary number of timesteps, improving the efficiency of batch training for variable-length sequences. By focusing computation on active sequences, the model avoids unnecessary processing of completed captions, optimizing both computational resources and training time.
+
+\subsection{CNN fine-tuning}: The original implementation as well as that analyzed throughout our paper uses a fixed pre-trained CNN, however, our repository additionally integrates the option to fine-tune the final convolutional blocks of a specified CNN model. This could enable the CNN model to adapt the visual features to the specific task of image captioning and improve the accuracy of a our entire pipeline. 
+
+
+\section{Training Methodology Improvements}
+
+We introduced several training improvements:
+
+\subsection{Label Smoothing Loss}
+
+Label smoothing is a regularization technique used to improve the generalization of neural networks. Instead of assigning a probability of 1 to the correct class and 0 to all others, label smoothing assigns a slightly lower probability to the correct class and distributes the remaining probability mass across the other classes. This approach helps prevent the model from becoming overconfident in its predictions, which can lead to better generalization.
+
+In our implementation, we use a label smoothing factor of 0.1. The loss is calculated as a combination of the negative log-likelihood of the correct class and the average log-likelihood of all classes, weighted by the smoothing factor. This is mathematically represented as:
+
+\begin{equation}
+\mathcal{L} = (1 - \epsilon) \cdot \text{NLL} + \epsilon \cdot \text{Smooth\_Loss}
+\end{equation}
+
+where \(\epsilon\) is the smoothing factor, \(\text{NLL}\) is the negative log-likelihood of the correct class, and \(\text{Smooth\_Loss}\) is the average log-likelihood of all classes.
+
+This technique encourages the model to be less confident in its predictions, which can lead to improved performance on unseen data.
+    
+\subsection{Teacher forcing} Teacher forcing is a training technique used in sequence-to-sequence models, such as those used for language generation tasks. During training, at each step of sequence generation, the model receives the correct token from the ground-truth sequence as input for the next step, instead of using the token it predicted in the previous step.By providing the correct context at each step, teacher forcing helps the model learn the correct sequence patterns more quickly, leading to faster convergence, greater stability, and improved learning.
+    
+\subsection{Gradient clipping} To prevent exploding gradients, we applied gradient clipping:
+    
+\begin{equation}
+\nabla_{\theta} \mathcal{L} = \min \left( \max \left( \nabla_{\theta} \mathcal{L}, -c \right), c \right)
+\end{equation}
+
+where $c$ is the clipping threshold.
+    
+\subsection{Learning rate scheduling} We implemented step decay for the learning rate:
+    
+\begin{equation}
+\eta_{epoch} = \eta_{0} \cdot \gamma^{\lfloor \frac{epoch}{step\_size} \rfloor}
+\end{equation}
+
+where $\gamma$ is the decay factor and $step\_size$ is the number of epochs after which to decay the learning rate.
+
+\subsection{Regularization} We introduced dropout in the decoder to prevent overfitting. During training, dropout randomly sets a fraction of the neurons in a layer to zero at each forward pass. This fraction is determined by a hyperparameter called the dropout rate, typically denoted as p:
+    
+\begin{align}
+p_t &= \text{dropout}(h_t, p) \\
+y_t &= \text{softmax}(W_o p_t + b_o)
+\end{align}
+
+Dropout helps prevent overfitting to the training data and improve the generalizability to new data. 
+
+
+\section{Results and Discussion}
+
+
+The architectural improvements described above are expected to yield several benefits:
+
+\begin{enumerate}
+    \item The enhanced encoder with fine-tuning support should allow the model to learn more task-specific visual features, potentially improving the relevance of attended image regions. ResNet101 offers a better balance between depth (accuracy) and computational efficiency compared to VGG19, which lacks residual connections, or ResNet152, which has more parameters.
+    
+    \item The improved attention mechanism with parameterized dimensionality should lead to more focused attention, particularly on complex images with multiple objects. The clearer separation of encoding and decoding spaces allows the model to better distinguish between different spatial locations.
+    
+    \item The decoder's enhanced handling of variable-length captions should improve training efficiency and potentially lead to more diverse and natural-sounding captions. The adaptive teacher forcing approach helps bridge the gap between training and inference behaviors.
+    
+    \item The training methodology improvements, particularly the use of separate learning rates and gradient clipping, should result in more stable training and potentially better convergence. The learning rate scheduling helps the model converge to better minima.
+\end{enumerate}
+
+Quantitative evaluation would typically involve metrics such as BLEU, METEOR, CIDEr, and ROUGE scores on standard datasets like MS COCO. Qualitative analysis would examine the attention visualizations to assess whether the model correctly focuses on relevant image regions when generating specific words.
+
+\section{Conclusion}
+
+We have presented an implementation and enhancement of the "Show, Attend and Tell" model for image captioning. Our modifications to the encoder-decoder architecture, attention mechanism, and training methodology address several limitations of the original implementation while maintaining the core insights of the original paper.
+
+The flexibility to use modern CNN architectures, the improved attention mechanism, and the enhanced training procedures collectively represent a significant advancement over the base implementation. These improvements not only enhance model performance but also improve training efficiency and stability.
+
+Future work could explore the integration of more advanced attention mechanisms, such as multi-head attention, or the incorporation of transformer architectures that have recently shown promising results in sequence generation tasks.
+
+\section*{Impact Statement}
+
+This paper presents work whose goal is to advance the field of Machine Learning. There are many potential societal consequences of our work, none which we feel must be specifically highlighted here.
+
+\bibliography{example_paper}
+\bibliographystyle{icml2025}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\onecolumn
+\section{You \emph{can} have an appendix here.}
+
+
+The vocabulary is dynamically constructed based on word frequency, with a minimum word count threshold to filter out infrequent words. This ensures that the vocabulary is both relevant and manageable. Special tokens are added to handle sequence boundaries and unknown words, similar to the Show, Attend, and Tell strategy. Tokenized captions are stored in JSON format, which enhances interoperability and ease of use across different platforms and frameworks.
+
+You can have as much text here as you want. The main body must be at most $8$ pages long.
+For the final version, one more page can be added.
+If you want, you can use an appendix like this one.  
+
+The $\mathtt{\backslash onecolumn}$ command above can be kept in place if you prefer a one-column appendix, or can be removed if you prefer a two-column appendix.  Apart from this possible change, the style (font size, spacing, margins, page numbering, etc.) should be kept the same as the main body.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}
+
+
+% This document was modified from the file originally made available by
+% Pat Langley and Andrea Danyluk for ICML-2K. This version was created
+% by Iain Murray in 2018, and modified by Alexandre Bouchard in
+% 2019 and 2021 and by Csaba Szepesvari, Gang Niu and Sivan Sabato in 2022.
+% Modified again in 2023 and 2024 by Sivan Sabato and Jonathan Scarlett.
+% Previous contributors include Dan Roy, Lise Getoor and Tobias
+% Scheffer, which was slightly modified from the 2010 version by
+% Thorsten Joachims & Johannes Fuernkranz, slightly modified from the
+% 2009 version by Kiri Wagstaff and Sam Roweis's 2008 version, which is
+% slightly modified from Prasad Tadepalli's 2007 version which is a
+% lightly changed version of the previous year's version by Andrew
+% Moore, which was in turn edited from those of Kristian Kersting and
+% Codrina Lauth. Alex Smola contributed to the algorithmic style files.

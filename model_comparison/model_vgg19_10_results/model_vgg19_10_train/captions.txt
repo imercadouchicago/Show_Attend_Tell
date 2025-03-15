@@ -1,0 +1,43 @@
+Model: model_vgg19_10, Split: train
+==================================================
+
+Image: COCO_train2014_000000560396.jpg
+Caption: <start> a beach of with a a a beach
+--------------------------------------------------
+
+Image: COCO_train2014_000000052347.jpg
+Caption: <start> a cows of in a a a a
+--------------------------------------------------
+
+Image: COCO_train2014_000000189706.jpg
+Caption: <start> a man riding a skateboard a a a a
+--------------------------------------------------
+
+Image: COCO_train2014_000000536999.jpg
+Caption: <start> a woman is a a a a a a
+--------------------------------------------------
+
+Image: COCO_train2014_000000081842.jpg
+Caption: <start> a traffic of a a a a a a
+--------------------------------------------------
+
+Image: COCO_train2014_000000476761.jpg
+Caption: <start> a parking parking parking parking a parking a
+--------------------------------------------------
+
+Image: COCO_train2014_000000186888.jpg
+Caption: <start> a group of people a a a a a
+--------------------------------------------------
+
+Image: COCO_train2014_000000124694.jpg
+Caption: <start> a man and a a a a a a
+--------------------------------------------------
+
+Image: COCO_train2014_000000507212.jpg
+Caption: <start> a cat cat on on a a a laptop
+--------------------------------------------------
+
+Image: COCO_train2014_000000096554.jpg
+Caption: <start> a bunch of of bananas on on a
+--------------------------------------------------
+

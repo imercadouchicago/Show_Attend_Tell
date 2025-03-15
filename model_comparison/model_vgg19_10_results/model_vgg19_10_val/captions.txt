@@ -1,0 +1,43 @@
+Model: model_vgg19_10, Split: val
+==================================================
+
+Image: COCO_val2014_000000137803.jpg
+Caption: <start> a group of people a a a a
+--------------------------------------------------
+
+Image: COCO_val2014_000000358658.jpg
+Caption: <start> a living room with a a a a a
+--------------------------------------------------
+
+Image: COCO_val2014_000000293452.jpg
+Caption: <start> two group of on standing a a the
+--------------------------------------------------
+
+Image: COCO_val2014_000000266250.jpg
+Caption: <start> a cat is a a a a a a
+--------------------------------------------------
+
+Image: COCO_val2014_000000397628.jpg
+Caption: <start> a stop sign a a a a a a
+--------------------------------------------------
+
+Image: COCO_val2014_000000190007.jpg
+Caption: <start> a man riding a wave on a a wave
+--------------------------------------------------
+
+Image: COCO_val2014_000000250227.jpg
+Caption: <start> a group of people a a a a
+--------------------------------------------------
+
+Image: COCO_val2014_000000403907.jpg
+Caption: <start> a red of a a a a a a
+--------------------------------------------------
+
+Image: COCO_val2014_000000066717.jpg
+Caption: <start> a group of a a a a train
+--------------------------------------------------
+
+Image: COCO_val2014_000000354744.jpg
+Caption: <start> a boat boat on a a a a
+--------------------------------------------------
+

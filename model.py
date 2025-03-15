@@ -1,3 +1,4 @@
+""" New model.py file"""
 import torch
 from torch import nn
 from torchvision.models import resnet101, vgg19
@@ -31,17 +32,23 @@ class Encoder(nn.Module):
         # Reshapes tensor to (batch, height*width, channels) - flattening spatial dimensions
         output = output.view(output.size(0), -1, output.size(-1))  
         return output
-    
+
     def fine_tune(self, fine_tune=True):
-        """
-        Allow or prevent the computation of gradients for convolutional blocks 2 through 4 of the encoder.
-        """
-        for p in self.resnet.parameters():
+        # Freeze all parameters
+        for p in self.net.parameters():
             p.requires_grad = False
-        # If fine-tuning, only fine-tune convolutional blocks 2 through 4
-        for c in list(self.resnet.children())[5:]:
-            for p in c.parameters():
-                p.requires_grad = fine_tune
+        
+        if fine_tune:
+            if self.network == 'resnet101':
+                # For ResNet, only fine-tune convolutional blocks 2 through 4
+                for c in list(self.net.children())[5:]:
+                    for p in c.parameters():
+                        p.requires_grad = True
+            elif self.network == 'vgg19':
+                # For VGG19, fine-tune the last few layers (adjust as needed)
+                for c in list(self.net.children())[-5:]:
+                    for p in c.parameters():
+                        p.requires_grad = True
 
     
 class Attention(nn.Module):
@@ -109,7 +116,7 @@ class Decoder(nn.Module):
         return h, c
     
     def forward(self, img_features, captions):
-        # img_features is a batch_size x L x D matrix with L annotation vectors of dimension D
+        # img_features is a batch_size x n x D matrix with n pixels of dimension D
         batch_size = img_features.size(0)
         num_pixels = img_features.size(1)
         
@@ -138,7 +145,7 @@ class Decoder(nn.Module):
             
             # Adaptive attention where h is previous hidden state
             context, alpha = self.attention(img_features[:batch_size_t], h[:batch_size_t])
-            gate = self.sigmoid(self.f_beta(h[:batch_size_t]))
+            gate = self.sigmoid(self.attention_gate_layer(h[:batch_size_t]))
             gated_context = gate * context
             
             if self.use_tf and self.training:
@@ -147,16 +154,19 @@ class Decoder(nn.Module):
                 lstm_input = torch.cat((embedding_t, gated_context), dim=1)
             else:
                 # Use model's own prediction as input for next timestep
-                embedding = embedding.squeeze(1) if embedding.dim() == 3 else embedding
-                embedding_t = embedding[:batch_size_t]
+                if embedding.dim() == 3:
+                    curr_embedding = embedding.squeeze(1)
+                else:
+                    curr_embedding = embedding
+                embedding_t = curr_embedding[:batch_size_t]
                 lstm_input = torch.cat((embedding_t, gated_context), dim=1)
             
             h_t, c_t = self.lstm(lstm_input, (h[:batch_size_t], c[:batch_size_t]))
-            output = self.deep_output(self.dropout(h_t))
+            output = self.output_layer(self.dropout(h_t))
             
             # Update states for next timestep
-            h[:batch_size_t] = h_t
-            c[:batch_size_t] = c_t
+            h = torch.cat([h_t, h[batch_size_t:]], dim=0) if batch_size_t < h.size(0) else h_t
+            c = torch.cat([c_t, c[batch_size_t:]], dim=0) if batch_size_t < c.size(0) else c_t
             
             predictions[:batch_size_t, t] = output
             alphas[:batch_size_t, t] = alpha
@@ -168,70 +178,3 @@ class Decoder(nn.Module):
         _, restore_ind = sort_ind.sort(dim=0, descending=False)
         return predictions[restore_ind], alphas[restore_ind]
 
-    def caption(self, img_features, beam_size):  # Method for generating captions using beam search
-        """
-        We use beam search to construct the best sentences following a
-        similar implementation as the author in
-        https://github.com/kelvinxu/arctic-captions/blob/master/generate_caps.py
-        """
-        prev_words = torch.zeros(beam_size, 1).long()  # Creates tensor of zeros (start tokens) for beam search
-
-        sentences = prev_words  # Initializes sentences with start tokens
-        top_preds = torch.zeros(beam_size, 1)  # Initializes prediction scores
-        alphas = torch.ones(beam_size, 1, img_features.size(1))  # Initializes attention weights
-
-        completed_sentences = []  # List to store completed sentences
-        completed_sentences_alphas = []  # List to store attention weights for completed sentences
-        completed_sentences_preds = []  # List to store prediction scores for completed sentences
-
-        step = 1  # Initializes step counter
-        h, c = self.init_lstm_states(img_features)
-
-        while True:  # Continues until breaking condition
-            embedding = self.embedding(prev_words).squeeze(1)  # Embeds previous words and removes extra dimension
-            context, alpha = self.attention(img_features, h)  # Computes attention context and weights
-            gate = self.sigmoid(self.attention_gate_layer(h))  # Computes attention gate
-            gated_context = gate * context  # Applies gate to context
-
-            lstm_input = torch.cat((embedding, gated_context), dim=1)  # Concatenates embedding and context
-            h, c = self.lstm(lstm_input, (h, c))  # Updates LSTM states
-            output = self.output_layer(h)  # Maps LSTM output to vocabulary
-            output = top_preds.expand_as(output) + output  # Adds previous scores to current output
-
-            if step == 1:  # Special case for first step
-                top_preds, top_words = output[0].topk(beam_size, 0, True, True)  # Gets top k predictions
-            else:
-                top_preds, top_words = output.view(-1).topk(beam_size, 0, True, True)  # Gets top k predictions from all beams
-            prev_word_idxs = top_words / output.size(1)  # Gets indices of which beams to keep
-            next_word_idxs = top_words % output.size(1)  # Gets indices of next words
-
-            sentences = torch.cat((sentences[prev_word_idxs], next_word_idxs.unsqueeze(1)), dim=1)  # Updates sentences
-            alphas = torch.cat((alphas[prev_word_idxs], alpha[prev_word_idxs].unsqueeze(1)), dim=1)  # Updates attention weights
-
-            incomplete = [idx for idx, next_word in enumerate(next_word_idxs) if next_word != 1]  # Finds incomplete sentences
-            complete = list(set(range(len(next_word_idxs))) - set(incomplete))  # Finds completed sentences
-
-            if len(complete) > 0:  # If there are completed sentences
-                completed_sentences.extend(sentences[complete].tolist())  # Adds completed sentences to list
-                completed_sentences_alphas.extend(alphas[complete].tolist())  # Adds attention weights to list
-                completed_sentences_preds.extend(top_preds[complete])  # Adds prediction scores to list
-            beam_size -= len(complete)  # Reduces beam size
-
-            if beam_size == 0:  # If no more beams
-                break  # Exits the loop
-            sentences = sentences[incomplete]  # Keeps only incomplete sentences
-            alphas = alphas[incomplete]  # Keeps only corresponding attention weights
-            h = h[prev_word_idxs[incomplete]]  # Updates hidden states
-            c = c[prev_word_idxs[incomplete]]  # Updates cell states
-            img_features = img_features[prev_word_idxs[incomplete]]  # Updates image features
-            top_preds = top_preds[incomplete].unsqueeze(1)  # Updates prediction scores
-            prev_words = next_word_idxs[incomplete].unsqueeze(1)  # Updates previous words
-
-            if step > 50:  # If exceeded maximum steps
-                break  # Exits the loop
-            step += 1  # Increments step counter
-
-        idx = completed_sentences_preds.index(max(completed_sentences_preds))  # Finds index of best sentence
-        sentence = completed_sentences[idx]  # Gets the best sentence
-        alpha = completed_sentences_alphas[idx]  # Gets corresponding attention weights
-        return sentence, alpha  # Returns the best sentence and its attention weights

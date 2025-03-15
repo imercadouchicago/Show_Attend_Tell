@@ -1,0 +1,43 @@
+Model: model_resnet101_v2_9, Split: train
+==================================================
+
+Image: COCO_train2014_000000560396.jpg
+Caption: a group of beach chairs and umbrellas on a sandy beach
+--------------------------------------------------
+
+Image: COCO_train2014_000000052347.jpg
+Caption: a couple of cows that are standing in the dirt
+--------------------------------------------------
+
+Image: COCO_train2014_000000189706.jpg
+Caption: a man on a skate board does a trick in the air
+--------------------------------------------------
+
+Image: COCO_train2014_000000536999.jpg
+Caption: a little girl standing in front of an open refrigerator
+--------------------------------------------------
+
+Image: COCO_train2014_000000081842.jpg
+Caption: a group of cars driving down a street next to a traffic light
+--------------------------------------------------
+
+Image: COCO_train2014_000000476761.jpg
+Caption: a couple of parking meters on the side of a road
+--------------------------------------------------
+
+Image: COCO_train2014_000000186888.jpg
+Caption: a black and white photo of a group of tennis players with rackets
+--------------------------------------------------
+
+Image: COCO_train2014_000000124694.jpg
+Caption: a black and white photo of a group of people standing in front of a herd of sheep
+--------------------------------------------------
+
+Image: COCO_train2014_000000507212.jpg
+Caption: an orange and white cat sitting on top of a laptop computer
+--------------------------------------------------
+
+Image: COCO_train2014_000000096554.jpg
+Caption: a pile of green bananas sitting next to a pile of green apples
+--------------------------------------------------
+
