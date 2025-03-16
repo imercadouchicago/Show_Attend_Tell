@@ -1,4 +1,5 @@
-Model: model_resnet101_v2_9, Split: val
+
+Model: model_resnet101_9, Split: val
 ==================================================
 
 Image: COCO_val2014_000000137803.jpg
