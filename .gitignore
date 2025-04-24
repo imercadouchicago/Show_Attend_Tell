@@ -5,4 +5,4 @@ batch.s
 results.out
 
 data/coco
-model/model*
+model/*

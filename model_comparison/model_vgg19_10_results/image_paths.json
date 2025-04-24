@@ -1,0 +1,27 @@
+{
+  "train_images": [
+    "data/coco/imgs/train2014/COCO_train2014_000000560396.jpg",
+    "data/coco/imgs/train2014/COCO_train2014_000000052347.jpg",
+    "data/coco/imgs/train2014/COCO_train2014_000000189706.jpg",
+    "data/coco/imgs/train2014/COCO_train2014_000000536999.jpg",
+    "data/coco/imgs/train2014/COCO_train2014_000000081842.jpg",
+    "data/coco/imgs/train2014/COCO_train2014_000000476761.jpg",
+    "data/coco/imgs/train2014/COCO_train2014_000000186888.jpg",
+    "data/coco/imgs/train2014/COCO_train2014_000000124694.jpg",
+    "data/coco/imgs/train2014/COCO_train2014_000000507212.jpg",
+    "data/coco/imgs/train2014/COCO_train2014_000000096554.jpg"
+  ],
+  "val_images": [
+    "data/coco/imgs/val2014/COCO_val2014_000000137803.jpg",
+    "data/coco/imgs/val2014/COCO_val2014_000000358658.jpg",
+    "data/coco/imgs/val2014/COCO_val2014_000000293452.jpg",
+    "data/coco/imgs/val2014/COCO_val2014_000000266250.jpg",
+    "data/coco/imgs/val2014/COCO_val2014_000000397628.jpg",
+    "data/coco/imgs/val2014/COCO_val2014_000000190007.jpg",
+    "data/coco/imgs/val2014/COCO_val2014_000000250227.jpg",
+    "data/coco/imgs/val2014/COCO_val2014_000000403907.jpg",
+    "data/coco/imgs/val2014/COCO_val2014_000000066717.jpg",
+    "data/coco/imgs/val2014/COCO_val2014_000000354744.jpg"
+  ],
+  "model_version": "original"
+}

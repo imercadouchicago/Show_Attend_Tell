@@ -1,1 +1,1 @@
-The decoder model parameters will be saved here.
+Model parameters will be saved here.

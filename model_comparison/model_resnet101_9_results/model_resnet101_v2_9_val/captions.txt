@@ -1,0 +1,44 @@
+
+Model: model_resnet101_9, Split: val
+==================================================
+
+Image: COCO_val2014_000000137803.jpg
+Caption: a group of people standing on top of a sandy beach
+--------------------------------------------------
+
+Image: COCO_val2014_000000358658.jpg
+Caption: a living room filled with furniture and a flat screen tv
+--------------------------------------------------
+
+Image: COCO_val2014_000000293452.jpg
+Caption: a flock of birds standing on top of a sandy beach
+--------------------------------------------------
+
+Image: COCO_val2014_000000266250.jpg
+Caption: a black cat sitting in front of a flat screen tv
+--------------------------------------------------
+
+Image: COCO_val2014_000000397628.jpg
+Caption: a red stop sign sitting on the side of a road next to a street
+--------------------------------------------------
+
+Image: COCO_val2014_000000190007.jpg
+Caption: a person on a surf board riding a wave
+--------------------------------------------------
+
+Image: COCO_val2014_000000250227.jpg
+Caption: a group of people in a boat in a body of water
+--------------------------------------------------
+
+Image: COCO_val2014_000000403907.jpg
+Caption: a close up of a pair of scissors in front of a wall
+--------------------------------------------------
+
+Image: COCO_val2014_000000066717.jpg
+Caption: a passenger train that is pulling into a train station
+--------------------------------------------------
+
+Image: COCO_val2014_000000354744.jpg
+Caption: a boat sitting on the beach next to a body of water
+--------------------------------------------------
+
