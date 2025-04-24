@@ -7,8 +7,7 @@ All of the code contained within the original_code directory is sourced from [th
 ## To Train
 
 Download the COCO dataset training and validation
-images (From here: [training](http://images.cocodataset.org/zips/train2014.zip) and [validation](http://images.cocodataset.org/zips/val2014.zip) images). Put them in `data/coco/imgs/train2014` and `data/coco/imgs/val2014` respectively. Put the COCO
-dataset split JSON file from [Deep Visual-Semantic Alignments](https://cs.stanford.edu/people/karpathy/deepimagesent/)
+images (From here: [training](http://images.cocodataset.org/zips/train2014.zip) and [validation](http://images.cocodataset.org/zips/val2014.zip) images). Put them in `data/coco/imgs/train2014` and `data/coco/imgs/val2014` respectively. Put the COCO dataset split JSON file from [Deep Visual-Semantic Alignments](https://cs.stanford.edu/people/karpathy/deepimagesent/)
 in `data/coco/`. It should be named `dataset.json`.
 
 Run the preprocessing to create the needed JSON files:
@@ -23,8 +22,7 @@ Start the training by running:
 python train.py
 ```
 
-The models will be saved in `model/` and the training statistics will be saved in `runs/`. To see the
-training statistics, use:
+The models will be saved in `model/` and the training statistics will be saved in `runs/`. To see the training statistics, use:
 
 ```bash
 tensorboard --logdir runs
